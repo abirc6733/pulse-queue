@@ -1,0 +1,25 @@
+# Binaries
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test artifacts & coverage
+*.out
+*.test
+coverage.html
+
+# IDEs & OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Logs & temp
+*.log
+*.rdb
+dump.rdb
+tmp/
+scratch/

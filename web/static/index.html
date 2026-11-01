@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PulseQueue - Distributed Task Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .animate-live { animation: pulse-dot 1.5s infinite ease-in-out; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen">
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <header class="flex items-center justify-between pb-6 border-b border-slate-800">
+      <div class="flex items-center space-x-3">
+        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-indigo-500/30">
+          ⚡
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-white">PulseQueue</h1>
+          <p class="text-xs text-slate-400">High-Performance Distributed Background Task Engine</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-3">
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span class="h-2 w-2 rounded-full bg-emerald-400 mr-2 animate-live"></span>
+          Cluster Connected
+        </span>
+        <button onclick="fetchData()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg border border-slate-700 transition">
+          Refresh
+        </button>
+      </div>
+    </header>
+
+    <!-- Metrics Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 my-6" id="metrics-grid">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+        <div class="text-xs font-semibold text-rose-400 uppercase tracking-wider">Critical</div>
+        <div class="text-2xl font-bold mt-1 text-white" id="stat-critical">-</div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+        <div class="text-xs font-semibold text-amber-400 uppercase tracking-wider">High</div>
+        <div class="text-2xl font-bold mt-1 text-white" id="stat-high">-</div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+        <div class="text-xs font-semibold text-blue-400 uppercase tracking-wider">Default</div>
+        <div class="text-2xl font-bold mt-1 text-white" id="stat-default">-</div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Low</div>
+        <div class="text-2xl font-bold mt-1 text-white" id="stat-low">-</div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+        <div class="text-xs font-semibold text-purple-400 uppercase tracking-wider">Delayed</div>
+        <div class="text-2xl font-bold mt-1 text-white" id="stat-delayed">-</div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+        <div class="text-xs font-semibold text-cyan-400 uppercase tracking-wider">Processing</div>
+        <div class="text-2xl font-bold mt-1 text-white" id="stat-processing">-</div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+        <div class="text-xs font-semibold text-red-500 uppercase tracking-wider">DLQ (Dead)</div>
+        <div class="text-2xl font-bold mt-1 text-white" id="stat-dlq">-</div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+        <div class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Workers</div>
+        <div class="text-2xl font-bold mt-1 text-white" id="stat-workers">-</div>
+      </div>
+    </div>
+
+    <!-- Main Content Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Left Column: Active Workers & Task Dispatcher -->
+      <div class="space-y-6">
+        <!-- Worker Fleet -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-semibold text-white">Active Worker Nodes</h2>
+            <span class="text-xs text-slate-400" id="worker-count-tag">0 nodes</span>
+          </div>
+          <div class="space-y-2.5" id="workers-list">
+            <p class="text-xs text-slate-500">Scanning for worker nodes...</p>
+          </div>
+        </div>
+
+        <!-- Task Enqueue Playground -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+          <h2 class="text-base font-semibold text-white mb-3">Dispatch Test Task</h2>
+          <form id="dispatch-form" class="space-y-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Task Type</label>
+              <input type="text" id="input-type" value="email:send" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Priority</label>
+                <select id="input-priority" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                  <option value="critical">Critical</option>
+                  <option value="high">High</option>
+                  <option value="default" selected>Default</option>
+                  <option value="low">Low</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Delay (sec)</label>
+                <input type="number" id="input-delay" value="0" min="0" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Payload (JSON)</label>
+              <textarea id="input-payload" rows="3" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-indigo-500">{"to": "user@example.com", "template": "welcome"}</textarea>
+            </div>
+            <button type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-lg shadow-lg shadow-indigo-600/30 transition">
+              Enqueue Task
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Right Column: Dead Letter Queue (DLQ) Inspector -->
+      <div class="lg:col-span-2">
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-base font-semibold text-white">Dead Letter Queue (DLQ) Inspector</h2>
+              <p class="text-xs text-slate-400">Tasks that exhausted all retry attempts and failed permanently</p>
+            </div>
+            <span class="text-xs px-2.5 py-1 rounded bg-rose-500/10 text-rose-400 font-mono" id="dlq-total-tag">0 failed</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-950 text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-800">
+                <tr>
+                  <th class="py-2.5 px-3">Task ID</th>
+                  <th class="py-2.5 px-3">Type</th>
+                  <th class="py-2.5 px-3">Retries</th>
+                  <th class="py-2.5 px-3">Last Error</th>
+                  <th class="py-2.5 px-3 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="dlq-table-body" class="divide-y divide-slate-800/60 font-mono">
+                <tr>
+                  <td colspan="5" class="py-6 text-center text-slate-500 font-sans">DLQ is empty. All systems normal.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    async function fetchData() {
+      try {
+        const statsRes = await fetch('/api/stats');
+        const stats = await statsRes.json();
+        document.getElementById('stat-critical').innerText = stats.critical ?? 0;
+        document.getElementById('stat-high').innerText = stats.high ?? 0;
+        document.getElementById('stat-default').innerText = stats.default ?? 0;
+        document.getElementById('stat-low').innerText = stats.low ?? 0;
+        document.getElementById('stat-delayed').innerText = stats.delayed ?? 0;
+        document.getElementById('stat-processing').innerText = stats.processing ?? 0;
+        document.getElementById('stat-dlq').innerText = stats.dlq ?? 0;
+        document.getElementById('stat-workers').innerText = stats.workers ?? 0;
+        document.getElementById('dlq-total-tag').innerText = stats.dlq + ' failed';
+
+        // Workers
+        const workersRes = await fetch('/api/workers');
+        const workers = await workersRes.json() || [];
+        document.getElementById('worker-count-tag').innerText = workers.length + ' nodes';
+        const wList = document.getElementById('workers-list');
+        if (workers.length === 0) {
+          wList.innerHTML = '<p class="text-xs text-slate-500">No active worker nodes detected.</p>';
+        } else {
+          wList.innerHTML = workers.map(w => `
+            <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-xs text-indigo-400 font-semibold truncate w-40">${w.worker_id}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400">Online</span>
+              </div>
+              <div class="mt-2 flex items-center justify-between text-[11px] text-slate-400">
+                <span>Concurrency: <b>${w.concurrency}</b></span>
+                <span>Active Jobs: <b class="text-cyan-400">${w.active_jobs}</b></span>
+                <span>Host: <b>${w.hostname || 'local'}</b></span>
+              </div>
+            </div>
+          `).join('');
+        }
+
+        // DLQ
+        const dlqRes = await fetch('/api/dlq');
+        const dlqData = await dlqRes.json();
+        const tbody = document.getElementById('dlq-table-body');
+        if (!dlqData.tasks || dlqData.tasks.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-slate-500 font-sans">DLQ is empty. All systems operational.</td></tr>';
+        } else {
+          tbody.innerHTML = dlqData.tasks.map(t => `
+            <tr class="hover:bg-slate-900/50">
+              <td class="py-2.5 px-3 text-indigo-300">${t.id.slice(0, 8)}...</td>
+              <td class="py-2.5 px-3 text-slate-200 font-sans">${t.type}</td>
+              <td class="py-2.5 px-3 text-amber-400">${t.retry_count}/${t.max_retries}</td>
+              <td class="py-2.5 px-3 text-rose-400 truncate max-w-xs" title="${t.last_error}">${t.last_error || 'Unknown failure'}</td>
+              <td class="py-2.5 px-3 text-right">
+                <button onclick="retryTask('${t.id}')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-[11px] transition">Retry</button>
+              </td>
+            </tr>
+          `).join('');
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+      }
+    }
+
+    async function retryTask(id) {
+      await fetch('/api/dlq/retry?id=' + encodeURIComponent(id), { method: 'POST' });
+      fetchData();
+    }
+
+    document.getElementById('dispatch-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      let payload = {};
+      try {
+        payload = JSON.parse(document.getElementById('input-payload').value);
+      } catch (e) {
+        alert('Invalid JSON in payload');
+        return;
+      }
+      const data = {
+        type: document.getElementById('input-type').value,
+        priority: document.getElementById('input-priority').value,
+        delay_sec: parseInt(document.getElementById('input-delay').value) || 0,
+        payload: payload,
+        max_retries: 3
+      };
+      await fetch('/api/enqueue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      fetchData();
+    });
+
+    fetchData();
+    setInterval(fetchData, 2000);
+  </script>
+</body>
+</html>
