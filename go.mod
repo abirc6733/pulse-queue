@@ -1,4 +1,4 @@
-module github.com/pulsequeue/pulse-queue
+module github.com/abirc6733/pulse-queue
 
 go 1.26.0
 

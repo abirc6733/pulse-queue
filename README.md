@@ -1,7 +1,7 @@
 # ⚡ PulseQueue
 
-[![CI Pipeline](https://github.com/pulsequeue/pulse-queue/actions/workflows/ci.yml/badge.svg)](https://github.com/pulsequeue/pulse-queue/actions)
-[![Go Report Card](https://goreportcard.com/badge/github.com/pulsequeue/pulse-queue)](https://goreportcard.com/report/github.com/pulsequeue/pulse-queue)
+[![CI Pipeline](https://github.com/abirc6733/pulse-queue/actions/workflows/ci.yml/badge.svg)](https://github.com/abirc6733/pulse-queue/actions)
+[![Go Report Card](https://goreportcard.com/badge/github.com/abirc6733/pulse-queue)](https://goreportcard.com/report/github.com/abirc6733/pulse-queue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Benchmark](https://img.shields.io/badge/Throughput->110k%20ops%2Fsec-emerald.svg)](#-performance-benchmarks)
 
@@ -135,9 +135,9 @@ package main
 import (
     "context"
     "time"
-    "github.com/pulsequeue/pulse-queue/pkg/client"
-    "github.com/pulsequeue/pulse-queue/pkg/queue"
-    "github.com/pulsequeue/pulse-queue/pkg/types"
+    "github.com/abirc6733/pulse-queue/pkg/client"
+    "github.com/abirc6733/pulse-queue/pkg/queue"
+    "github.com/abirc6733/pulse-queue/pkg/types"
     "github.com/redis/go-redis/v9"
 )
 
@@ -173,9 +173,9 @@ import (
     "context"
     "log"
     "time"
-    "github.com/pulsequeue/pulse-queue/pkg/engine"
-    "github.com/pulsequeue/pulse-queue/pkg/queue"
-    "github.com/pulsequeue/pulse-queue/pkg/types"
+    "github.com/abirc6733/pulse-queue/pkg/engine"
+    "github.com/abirc6733/pulse-queue/pkg/queue"
+    "github.com/abirc6733/pulse-queue/pkg/types"
     "github.com/redis/go-redis/v9"
 )
 

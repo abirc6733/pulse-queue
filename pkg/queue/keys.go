@@ -2,7 +2,7 @@ package queue
 
 import (
 	"fmt"
-	"github.com/pulsequeue/pulse-queue/pkg/types"
+	"github.com/abirc6733/pulse-queue/pkg/types"
 )
 
 // KeyManager handles consistent Redis key formatting under an isolated namespace.

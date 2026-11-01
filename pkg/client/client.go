@@ -3,8 +3,8 @@ package client
 import (
 	"context"
 
-	"github.com/pulsequeue/pulse-queue/pkg/queue"
-	"github.com/pulsequeue/pulse-queue/pkg/types"
+	"github.com/abirc6733/pulse-queue/pkg/queue"
+	"github.com/abirc6733/pulse-queue/pkg/types"
 )
 
 // Client provides a clean, ergonomic API for producers to enqueue and monitor background tasks.

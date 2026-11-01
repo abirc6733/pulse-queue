@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/pulsequeue/pulse-queue/pkg/queue"
-	"github.com/pulsequeue/pulse-queue/pkg/types"
+	"github.com/abirc6733/pulse-queue/pkg/queue"
+	"github.com/abirc6733/pulse-queue/pkg/types"
 )
 
 //go:embed static/index.html

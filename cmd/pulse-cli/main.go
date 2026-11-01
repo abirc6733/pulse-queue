@@ -9,8 +9,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/pulsequeue/pulse-queue/pkg/client"
-	"github.com/pulsequeue/pulse-queue/pkg/queue"
+	"github.com/abirc6733/pulse-queue/pkg/client"
+	"github.com/abirc6733/pulse-queue/pkg/queue"
 	"github.com/redis/go-redis/v9"
 )
 

@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pulsequeue/pulse-queue/pkg/queue"
-	"github.com/pulsequeue/pulse-queue/pkg/types"
+	"github.com/abirc6733/pulse-queue/pkg/queue"
+	"github.com/abirc6733/pulse-queue/pkg/types"
 	"github.com/redis/go-redis/v9"
 )
 

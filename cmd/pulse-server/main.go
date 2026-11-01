@@ -4,8 +4,8 @@ import (
 	"flag"
 	"log"
 
-	"github.com/pulsequeue/pulse-queue/pkg/queue"
-	"github.com/pulsequeue/pulse-queue/web"
+	"github.com/abirc6733/pulse-queue/pkg/queue"
+	"github.com/abirc6733/pulse-queue/web"
 	"github.com/redis/go-redis/v9"
 )
 
