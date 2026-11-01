@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PulseQueue - Architectural Whitepaper & Algorithms</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    @page {
+      size: A4;
+      margin: 18mm 16mm 18mm 16mm;
+      @bottom-right {
+        content: counter(page);
+        font-family: 'Inter', sans-serif;
+        font-size: 9pt;
+        color: #64748b;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #0f172a;
+      background: #ffffff;
+      line-height: 1.6;
+      font-size: 10.5pt;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Cover / Header */
+    .header-banner {
+      border-bottom: 2px solid #0284c7;
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 7.5pt;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      background: #e0f2fe;
+      color: #0369a1;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 24pt;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.2;
+      margin: 0 0 8px 0;
+      letter-spacing: -0.03em;
+    }
+
+    .subtitle {
+      font-size: 12pt;
+      color: #475569;
+      margin: 0 0 14px 0;
+      font-weight: 400;
+    }
+
+    .meta-grid {
+      display: flex;
+      gap: 25px;
+      font-size: 8.5pt;
+      color: #64748b;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 10px;
+    }
+
+    .meta-grid strong {
+      color: #334155;
+    }
+
+    /* Headings */
+    h2 {
+      font-size: 14pt;
+      font-weight: 700;
+      color: #0369a1;
+      margin-top: 26px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 5px;
+      letter-spacing: -0.02em;
+    }
+
+    h3 {
+      font-size: 11.5pt;
+      font-weight: 600;
+      color: #1e293b;
+      margin-top: 16px;
+      margin-bottom: 6px;
+    }
+
+    p {
+      margin: 0 0 10px 0;
+      text-align: justify;
+    }
+
+    /* Callout Boxes */
+    .callout {
+      background: #f8fafc;
+      border-left: 4px solid #0284c7;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 14px 0;
+      font-size: 9.5pt;
+    }
+
+    .callout.danger {
+      background: #fff1f2;
+      border-left-color: #e11d48;
+    }
+
+    .callout.success {
+      background: #f0fdf4;
+      border-left-color: #16a34a;
+    }
+
+    .callout-title {
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #0f172a;
+    }
+
+    /* Code Blocks */
+    pre, code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 12px 14px;
+      border-radius: 6px;
+      font-size: 8.5pt;
+      line-height: 1.45;
+      overflow-x: auto;
+      margin: 10px 0 14px 0;
+    }
+
+    code.inline {
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 8.5pt;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 9pt;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #334155;
+      text-align: left;
+      padding: 8px 10px;
+      font-weight: 600;
+      border: 1px solid #cbd5e1;
+    }
+
+    td {
+      padding: 8px 10px;
+      border: 1px solid #e2e8f0;
+    }
+
+    tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    /* Diagram Card */
+    .diagram-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 14px;
+      margin: 14px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8pt;
+      line-height: 1.4;
+      color: #1e293b;
+      white-space: pre;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+
+    .formula {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 10px;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5pt;
+      font-weight: 600;
+      color: #0369a1;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header-banner">
+    <div class="badge">Systems Engineering Whitepaper</div>
+    <h1>PulseQueue: Distributed Background Task Queue & Job Engine</h1>
+    <div class="subtitle">System Architecture, Failure-Domain Mitigation, and Under-the-Hood Algorithms</div>
+    <div class="meta-grid">
+      <div><strong>Author:</strong> Abir (pulse-queue)</div>
+      <div><strong>Repository:</strong> github.com/abirc6733/pulse-queue</div>
+      <div><strong>Target Stack:</strong> Go, Redis, Docker</div>
+      <div><strong>Benchmarked Throughput:</strong> >112,000 ops/sec</div>
+    </div>
+  </div>
+
+  <!-- SECTION 1 -->
+  <h2>1. What Are We Solving? (The Problem Space)</h2>
+
+  <h3>1.1 The Synchronous Request-Response Anti-Pattern</h3>
+  <p>
+    In modern web applications, user-facing endpoints frequently trigger ancillary operations: payment settlements, thumbnail generations, analytical event dispatches, PDF invoice renderings, and transactional emails. 
+    When software architectures attempt to execute these operations synchronously inside the incoming HTTP request thread, system performance degrades catastrophically:
+  </p>
+  <ul>
+    <li><strong>Client Latency Degradation:</strong> A user waiting for a checkout confirmation is blocked for 5–15 seconds while external third-party APIs (e.g., Stripe, SendGrid) respond.</li>
+    <li><strong>Cascading Outages:</strong> If an external email provider suffers a 503 outage or latency spike, upstream web worker threads are held open, rapidly exhausting the web server's connection pool.</li>
+    <li><strong>Flash Crowd Vulnerability:</strong> During high-concurrency events (e.g., flash sales, Black Friday), executing CPU-intensive tasks inline causes out-of-memory (OOM) kernel panics.</li>
+  </ul>
+
+  <h3>1.2 The Fatal Flaws of Naive In-Memory Solutions (Goroutines / Threads)</h3>
+  <p>
+    A frequent beginner approach is simply spawning unmanaged background threads (e.g., <code>go sendEmail()</code>). In production, this creates catastrophic vulnerabilities:
+  </p>
+
+  <div class="callout danger">
+    <div class="callout-title">Why In-Memory Background Tasks Fail in Production:</div>
+    <ul>
+      <li><strong>Process Restarts = Irrecoverable Data Loss:</strong> If a Kubernetes pod restarts, deploys a new image, or gets OOM-killed, all jobs queued in server RAM vanish immediately without an audit trail.</li>
+      <li><strong>Lack of Distributed Visibility:</strong> In-memory queues cannot be shared across 20 horizontal microservice instances. One overloaded pod has no way to offload work to an idle pod.</li>
+      <li><strong>Double-Spend / Duplicate Execution:</strong> Double-clicking a button triggers two parallel routines without cluster-wide deduplication or locking.</li>
+      <li><strong>Absence of Backpressure & Throttling:</strong> Spawning 100,000 goroutines concurrently exhausts database connection pools and file descriptors.</li>
+    </ul>
+  </div>
+
+  <!-- SECTION 2 -->
+  <h2>2. How PulseQueue Solves It (Architectural Blueprint)</h2>
+  <p>
+    PulseQueue introduces an asynchronous, decoupled, multi-node architecture utilizing <strong>Redis</strong> as a persistent, high-throughput atomic state engine combined with a distributed fleet of <strong>Go worker nodes</strong>.
+  </p>
+
+  <div class="diagram-box">
++------------------------+      HTTP Enqueue (<2ms)     +--------------------------------+
+|  Web API / Producer    | ==========================>  |       Redis State Engine       |
++------------------------+                              +--------------------------------+
+                                                                |         |         |
+                  +---------------------------------------------+         |         |
+                  |                                                       |         |
+                  v                                                       v         v
+      [Active Queues (Lists)]                                    [Delayed Set]  [In-Flight ZSET]
+      - pulse:queue:critical                                     (ZSET: run_at) (ZSET: timeout)
+      - pulse:queue:high                                                  |         |
+      - pulse:queue:default                                               |         |
+      - pulse:queue:low                                                   v         v
+                  |                                              +---------------------+
+                  |   Atomic Priority Dequeue (Lua)              |  Scheduler / Reaper |
+                  +-----------------------+                      +---------------------+
+                                          |                                 |
+                                          v                                 v
+                             +-------------------------+         Reclaimed Orphan Tasks
+                             | Distributed Worker Pool | <------------------+
+                             | (Semaphore Concurrency) |
+                             +-------------------------+
+                                 |                 |
+                   Success: ACK  |                 | Failure: NACK
+                                 v                 v
+                       [Completed Archive]   [Dead Letter Queue]
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 3 -->
+  <h2>3. The Algorithms Behind PulseQueue</h2>
+
+  <h3>3.1 Algorithm 1: Atomic State Transitions via Redis Lua Scripts</h3>
+  <p>
+    <strong>The Problem:</strong> When 50 worker nodes concurrently pop tasks from a priority queue and record in-flight tracking, traditional Redis commands require multi-step round-trips. Standard <code>WATCH/MULTI/EXEC</code> uses Optimistic Concurrency Control (OCC), leading to massive transaction abort rates under load.
+  </p>
+  <p>
+    <strong>The Solution:</strong> PulseQueue executes all state transitions using single-threaded, embedded <strong>Redis Lua scripts</strong>. Lua scripts execute atomically inside Redis memory with zero possibility of interleaving operations.
+  </p>
+
+  <pre>-- Dequeue Algorithm with Strict Priority Arbitration
+for i = 1, 4 do
+    local q_key = KEYS[i] -- critical, high, default, low
+    local task_id = redis.call("RPOP", q_key)
+    if task_id then
+        -- Atomically register into processing ZSET with visibility deadline
+        redis.call("ZADD", KEYS[5], ARGV[2], task_id)
+        return task_id
+    end
+end
+return nil</pre>
+
+  <h3>3.2 Algorithm 2: At-Least-Once Delivery & Visibility Timeout Reaper</h3>
+  <p>
+    To solve the classic distributed systems challenge where a worker crashes mid-execution (power failure, <code>kill -9</code>, or network partition), PulseQueue implements a <strong>Visibility Timeout</strong> model:
+  </p>
+  <ul>
+    <li>When a worker picks up a task, the task is <em>not removed from the system</em>. It is placed in a sorted set (<code>pulse:processing</code>) with its score set to:</li>
+  </ul>
+  <div class="formula">
+    Score = UnixTimestamp(Now) + TaskTimeout
+  </div>
+  <ul>
+    <li><strong>Happy Path:</strong> The worker finishes execution and sends an atomic <code>ACK</code> script. Redis removes the task from <code>pulse:processing</code> and marks it <code>completed</code>.</li>
+    <li><strong>Crash Path:</strong> If the worker crashes, the background <strong>Reaper Daemon</strong> queries Redis for all tasks whose visibility deadline has expired:</li>
+  </ul>
+  <div class="formula">
+    ExpiredTasks = ZRANGEBYSCORE(pulse:processing, 0, CurrentTimestamp, LIMIT 0, BatchSize)
+  </div>
+  <p>
+    The reaper extracts the expired task and re-queues it back to its original priority lane or triggers an automated retry. <strong>No task is ever permanently lost.</strong>
+  </p>
+
+  <h3>3.3 Algorithm 3: Exponential Backoff with Jitter</h3>
+  <p>
+    When an external dependency fails, immediately retrying all failed tasks results in the <strong>Thundering Herd Problem</strong>, worsening the target outage. PulseQueue applies truncated exponential backoff combined with randomized full jitter:
+  </p>
+  <div class="formula">
+    t_{retry} = 2^{retry\_count} \times t_{base} + \text{rand}(0, 0.5 \times 2^{retry\_count})
+  </div>
+  <p>
+    The calculated retry timestamp is scored into the delayed sorted set (<code>pulse:delayed</code>). The <strong>Scheduler Daemon</strong> periodically polls the delayed set and migrates ready tasks to active queues as soon as their target run timestamp arrives.
+  </p>
+
+  <h3>3.4 Algorithm 4: Distributed Idempotency (Deduplication)</h3>
+  <p>
+    PulseQueue guarantees idempotency through atomic fingerprinting. Producers can supply a <code>UniqueKey</code> (e.g. <code>invoice-charge-9921</code>) with a Time-To-Live (TTL):
+  </p>
+  <pre>-- Atomic Idempotency Check in Enqueue Script
+if KEYS[4] ~= "" then
+    if redis.call("EXISTS", KEYS[4]) == 1 then
+        return 0 -- Duplicate rejected immediately
+    end
+    redis.call("SET", KEYS[4], ARGV[1], "EX", tonumber(ARGV[5]))
+end</pre>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 4 -->
+  <h2>4. Concurrency Management & Resilience</h2>
+
+  <h3>4.1 Semaphore-Bounded Goroutine Pooling</h3>
+  <p>
+    Unlike naive Go implementations that launch unbounded goroutines, PulseQueue constrains memory consumption using a <strong>buffered channel semaphore</strong>:
+  </p>
+  <pre>// Semaphore concurrency gate
+semaphore := make(chan struct{}, config.Concurrency)
+
+// Inside worker loop:
+semaphore &lt;- struct{}{} // Acquire slot
+go func(task *types.Task) {
+    defer func() {
+        &lt;-semaphore    // Release slot
+        wg.Done()
+    }()
+    s.executeTask(ctx, task)
+}(task)</pre>
+
+  <h3>4.2 Panic Recovery Safeguard</h3>
+  <p>
+    A panic in user-provided business logic (e.g. nil pointer dereference) would ordinarily crash the entire Go runtime process. PulseQueue isolates every task execution inside a deferred panic interceptor:
+  </p>
+  <pre>defer func() {
+    if r := recover(); r != nil {
+        execErr = fmt.Errorf("task panicked: %v", r)
+    }
+}()</pre>
+  <p>
+    If a panic occurs, the worker engine converts the panic into a structured error, reports it to Redis, routes the task towards retry/DLQ, and continues processing other queue items uninterrupted.
+  </p>
+
+  <!-- SECTION 5 -->
+  <h2>5. Dead Letter Queue (DLQ) & Operator Management</h2>
+  <p>
+    Tasks that exhaust their maximum configured retry threshold (e.g., 3 retries) are designated as <code>StateDead</code> and pushed into the Dead Letter Queue (<code>pulse:dlq</code>). 
+    This isolates poison-pill payloads from degrading operational throughput while maintaining full debugging visibility:
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Component</th>
+        <th>Purpose</th>
+        <th>Operator Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>DLQ Inspector</strong></td>
+        <td>Stores permanently failed tasks along with their stack trace and last error.</td>
+        <td>Inspect payload and root-cause failure via Web UI or CLI.</td>
+      </tr>
+      <tr>
+        <td><strong>Atomic Re-queue</strong></td>
+        <td>Resets retry counters to zero and pushes tasks back to active priority list.</td>
+        <td>Click "Retry" in Dashboard or execute <code>pulse-cli retry &lt;id&gt;</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>Heartbeat Registry</strong></td>
+        <td>Monitors connected worker hosts, active concurrency, and liveness.</td>
+        <td>Auto-prunes dead nodes after 30 seconds of missed heartbeats.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- SECTION 6 -->
+  <h2>6. Empirical Performance Benchmarks</h2>
+  <p>
+    Evaluated under high-concurrency benchmarks on Linux x86_64 (13th Gen Intel Core i5-13450HX, 16 threads, local Redis instance):
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Benchmark Operation</th>
+        <th>Throughput</th>
+        <th>Latency / Cost</th>
+        <th>Concurrency Mode</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Atomic Enqueue (Parallel)</strong></td>
+        <td><strong>112,400 tasks / sec</strong></td>
+        <td>8,897 ns / op</td>
+        <td>16 parallel goroutines + Redis Lua</td>
+      </tr>
+      <tr>
+        <td><strong>Multi-Priority Dequeue</strong></td>
+        <td><strong>85,000 tasks / sec</strong></td>
+        <td>11,700 ns / op</td>
+        <td>Strict priority check + in-flight tracking</td>
+      </tr>
+      <tr>
+        <td><strong>Memory Footprint (Worker)</strong></td>
+        <td><strong>&lt; 25 MB RSS</strong></td>
+        <td>Zero allocation GC pauses</td>
+        <td>Static binary, minimal footprint</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout success">
+    <div class="callout-title">Summary & Resume Takeaway</div>
+    PulseQueue demonstrates complete architectural mastery over distributed systems fundamentals: zero-loss crash recovery, atomic concurrency without distributed lock contention, self-healing background schedulers, and real-time operational observability.
+  </div>
+
+</body>
+</html>
